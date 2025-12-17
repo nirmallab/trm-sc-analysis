@@ -31,6 +31,7 @@ bioconductor-scdblfinder = ">=1.16.0"
 bioconductor-singlecellexperiment = ">=1.24.0"
 bioconductor-biocparallel = ">=1.36.0"
 bioconductor-genomeinfodb = ">=1.38.1,<1.39"
+bioconductor-scry = "*"
 
 bioconductor-mast = "*"
 r-lme4 = "*" # for mast

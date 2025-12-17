@@ -1,5 +1,6 @@
 # %%
 import anndata
+import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 import scanpy as sc
@@ -116,11 +117,7 @@ print(f"Number of cells after filtering of low quality cells: {adata.n_obs}")
 # # Infer corrected table of counts and rount to integer
 # out = adjustCounts(sc, roundToInt = TRUE)
 # %%
-import logging
-
-import anndata as ad
 import anndata2ri
-import rpy2.rinterface_lib.callbacks as rcb
 import rpy2.robjects as ro
 from rpy2.robjects.packages import importr
 
@@ -164,4 +161,73 @@ adata.write_h5ad('../data/interim/BRI-2937_qc.h5ad')
 # %%
 adata = sc.read_h5ad('../data/interim/BRI-2937_qc.h5ad')
 # %%
-p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False)
+# Shifted logarithm normalization
+scales_counts = sc.pp.normalize_total(adata, target_sum=None, inplace=False)
+adata.layers["log1p_norm"] = sc.pp.log1p(scales_counts["X"], copy=True)
+# %%
+fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
+axes[0].set_title("Total counts")
+p2 = sns.histplot(adata.layers["log1p_norm"].sum(1), bins=100, kde=False, ax=axes[1])
+axes[1].set_title("Shifted logarithm")
+plt.show()
+# %%
+importr('scry')
+
+featureSelection = ro.functions.wrap_r_function(
+    ro.r(
+        """
+function(adata){
+print("anndata loaded")
+print(adata)
+sce = devianceFeatureSelection(adata, assay="X")
+return(rowData(sce)$binomial_deviance)
+}
+"""
+    ),
+    "featureSelection",
+)
+with (
+    ro.default_converter + ro.pandas2ri.converter + anndata2ri.converter
+).context():
+    binomial_deviance = featureSelection(adata).T
+# %%
+idx = binomial_deviance.argsort()[-4000:]
+mask = np.zeros(adata.var_names.shape, dtype=bool)
+mask[idx] = True
+
+adata.var["highly_deviant"] = mask
+adata.var["binomial_deviance"] = binomial_deviance
+# %%
+sc.pp.highly_variable_genes(adata, layer="log1p_norm")
+# %%
+ax = sns.scatterplot(
+    data=adata.var, x="means", y="dispersions", hue="highly_deviant", s=5
+)
+ax.set_xlim(None, 1.5)
+ax.set_ylim(None, 3)
+plt.show()
+# %%
+adata.write_h5ad('../data/interim/BRI-2937_featureSelection.h5ad')
+# %%
+adata = sc.read_h5ad('../data/interim/BRI-2937_featureSelection.h5ad')
+# %%
+adata.X = adata.layers["log1p_norm"]
+# %%
+adata.var["highly_variable"] = adata.var["highly_deviant"]
+sc.pp.pca(adata, svd_solver="arpack", use_highly_variable=True)
+sc.pl.pca_scatter(adata, color="total_counts")
+# %%
+sc.pp.neighbors(adata)
+sc.tl.umap(adata)
+# %%
+sc.pl.umap(adata, color="total_counts")
+# %%
+sc.pl.umap(adata, color="sample")
+# %%
+sc.pl.umap(
+    adata,
+    color=["total_counts", "pct_counts_mt", "scDblFinder_score", "scDblFinder_class"],
+)
+# %%
+adata.write_h5ad('../data/interim/BRI-2937_reduced.h5ad')

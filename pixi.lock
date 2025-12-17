@@ -59,6 +59,7 @@ environments:
       - conda: https://conda.anaconda.org/bioconda/noarch/bioconductor-scater-1.30.1-r43hdfd78af_0.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/noarch/bioconductor-scdblfinder-1.16.0-r43hdfd78af_0.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/linux-64/bioconductor-scran-1.30.0-r43hf17093f_1.tar.bz2
+      - conda: https://conda.anaconda.org/bioconda/noarch/bioconductor-scry-1.14.0-r43hdfd78af_0.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/linux-64/bioconductor-scuttle-1.12.0-r43hf17093f_1.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/noarch/bioconductor-singlecellexperiment-1.24.0-r43hdfd78af_0.tar.bz2
       - conda: https://conda.anaconda.org/bioconda/linux-64/bioconductor-sparsearray-1.2.2-r43ha9d7317_2.tar.bz2
@@ -330,6 +331,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggplot2-3.5.2-r43hc72bb7e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-ggrastr-1.0.2-r43hc72bb7e_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-ggrepel-0.9.6-r43h3697838_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/r-glmpca-0.2.0-r43hc72bb7e_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/r-glue-1.8.0-r43h2b5f3a1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-gridextra-2.3-r43hc72bb7e_1006.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/r-gtable-0.3.6-r43hc72bb7e_0.conda
@@ -1397,6 +1399,21 @@ packages:
   purls: []
   size: 2329964
   timestamp: 1716985211227
+- conda: https://conda.anaconda.org/bioconda/noarch/bioconductor-scry-1.14.0-r43hdfd78af_0.tar.bz2
+  sha256: 9ecf007a01aabaa8e18632fb94c2650d21720c212d0e16a5f9a9fc1b19e2257f
+  md5: ae4aeb8aadd2fdef1d88f86da349ca93
+  depends:
+  - bioconductor-biocsingular >=1.18.0,<1.19.0
+  - bioconductor-delayedarray >=0.28.0,<0.29.0
+  - bioconductor-singlecellexperiment >=1.24.0,<1.25.0
+  - bioconductor-summarizedexperiment >=1.32.0,<1.33.0
+  - r-base >=4.3,<4.4.0a0
+  - r-glmpca >=0.2.0
+  - r-matrix
+  license: Artistic-2.0
+  purls: []
+  size: 4782753
+  timestamp: 1702927593292
 - conda: https://conda.anaconda.org/bioconda/linux-64/bioconductor-scuttle-1.12.0-r43hf17093f_1.tar.bz2
   sha256: 4bb469dbd755719d36110a39a9d641040d34d4392cb507409fc51ccc34930413
   md5: 42554cfce7daf595c9d7eb34ef3b158a
@@ -5214,6 +5231,17 @@ packages:
   purls: []
   size: 286375
   timestamp: 1754559562724
+- conda: https://conda.anaconda.org/conda-forge/noarch/r-glmpca-0.2.0-r43hc72bb7e_3.conda
+  sha256: 7b7a2cfca7fcbf17fbc550a8687195d9ffef05c169e515a6f4cfb99d50f11071
+  md5: 5ae13f8c57fa4bd4fe5876c71113c75e
+  depends:
+  - r-base >=4.3,<4.4.0a0
+  - r-mass
+  license: Artistic-2.0
+  license_family: OTHER
+  purls: []
+  size: 236157
+  timestamp: 1720958338387
 - conda: https://conda.anaconda.org/conda-forge/linux-64/r-glue-1.8.0-r43h2b5f3a1_0.conda
   sha256: 386032769e36683b23c360815e2c29048ea71d5a074b3d5f46f8bc6806492073
   md5: 381d612db7519f2a54f1b187e738ac7b
