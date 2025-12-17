@@ -8,7 +8,7 @@ from scipy.stats import median_abs_deviation
 import seaborn as sns
 # %%
 adatas = []
-perSampleDir = Path('../data/raw/cellRangerOuts/BRI-2937/per_sample_outs/')
+perSampleDir = Path('../data/raw/cellRangerOuts/BRI-2939/per_sample_outs/')
 for experimentDir in perSampleDir.iterdir():
     adataPath = experimentDir / 'count' / 'sample_filtered_feature_bc_matrix.h5'
     adataSample = sc.read_10x_h5(adataPath)
@@ -32,6 +32,12 @@ p1 = sns.displot(adata.obs["total_counts"], bins=100, kde=False)
 # sc.pl.violin(adata, 'total_counts')
 p2 = sc.pl.violin(adata, "pct_counts_mt")
 p3 = sc.pl.scatter(adata, "total_counts", "n_genes_by_counts", color="pct_counts_mt")
+# %%
+# The data seemed a bit skewed so this just checks a smaller subset
+nct = 50000
+obs2 = adata.obs.copy()
+obs2 = obs2.loc[obs2['total_counts']<=nct]
+plt.hist(obs2['total_counts'], bins=200)
 # %%
 def is_outlier(adata, metric: str, nmads: int):
     M = adata.obs[metric]
@@ -87,7 +93,7 @@ print(f"Number of cells after filtering of low quality cells: {adata.n_obs}")
 # genes = adata.var_names
 # data = adata.X.T
 # # %%
-# adata_raw = sc.read_10x_h5('/data/trm-sc-analysis/data/raw/cellRangerOuts/BRI-2937/count/raw_feature_bc_matrix.h5')
+# adata_raw = sc.read_10x_h5('/data/trm-sc-analysis/data/raw/cellRangerOuts/BRI-2939/count/raw_feature_bc_matrix.h5')
 # # %%
 # adata_raw.var_names_make_unique()
 # data_tod = adata_raw.X.T
@@ -157,13 +163,81 @@ with (
 adata.obs["scDblFinder_score"] = outs["score"]
 adata.obs["scDblFinder_class"] = outs["class"]
 # %%
-adata.write_h5ad('../data/interim/BRI-2937_qc.h5ad')
+adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_qc.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2937_qc.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_qc.h5ad')
 # %%
 # Shifted logarithm normalization
 scales_counts = sc.pp.normalize_total(adata, target_sum=None, inplace=False)
 adata.layers["log1p_norm"] = sc.pp.log1p(scales_counts["X"], copy=True)
+# %%
+from scipy.sparse import csr_matrix, issparse
+# Analytic Pearson Residuals - Produces NaN
+# analytic_pearson = sc.experimental.pp.normalize_pearson_residuals(adata, inplace=False)
+# adata.layers["analytic_pearson_residuals"] = csr_matrix(analytic_pearson["X"])
+# fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+# p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
+# axes[0].set_title("Total counts")
+# p2 = sns.histplot(
+#     adata.layers["analytic_pearson_residuals"].sum(1), bins=100, kde=False, ax=axes[1]
+# )
+# axes[1].set_title("Analytic Pearson residuals")
+# plt.show()
+# %%
+adata_pp = adata.copy()
+sc.pp.normalize_total(adata_pp)
+sc.pp.log1p(adata_pp)
+sc.pp.pca(adata_pp, n_comps=15)
+sc.pp.neighbors(adata_pp)
+sc.tl.leiden(adata_pp, key_added="groups")
+# %%
+data_mat = adata_pp.X.T
+input_groups = adata_pp.obs["groups"]
+# convert to CSC if possible. See https://github.com/MarioniLab/scran/issues/70
+if issparse(data_mat):
+    if data_mat.nnz > 2**31 - 1:
+        data_mat = data_mat.tocoo()
+    else:
+        data_mat = data_mat.tocsc()
+# %%
+importr('scran')
+# %%
+scranNorm = ro.functions.wrap_r_function(
+    ro.r(
+        """
+function(data_mat, input_groups){
+size_factors = sizeFactors(
+    computeSumFactors(
+        SingleCellExperiment(
+            list(counts=data_mat)), 
+            clusters = input_groups,
+            min.mean = 0.1,
+            BPPARAM = MulticoreParam()
+    )
+)
+return(size_factors)
+}
+"""
+    ),
+    "scranNorm",
+)
+with (
+    ro.default_converter + ro.pandas2ri.converter + anndata2ri.converter
+).context():
+    size_factors = scranNorm(data_mat, input_groups)
+# %%
+adata.obs["size_factors"] = size_factors
+scran = adata.X.toarray() / adata.obs["size_factors"].values[:, None]
+adata.layers["scran_normalization"] = csr_matrix(sc.pp.log1p(scran))
+# %%
+fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
+axes[0].set_title("Total counts")
+p2 = sns.histplot(
+    adata.layers["scran_normalization"].sum(1), bins=100, kde=False, ax=axes[1]
+)
+axes[1].set_title("log1p with Scran estimated size factors")
+plt.show()
 # %%
 fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
@@ -208,9 +282,9 @@ ax.set_xlim(None, 1.5)
 ax.set_ylim(None, 3)
 plt.show()
 # %%
-adata.write_h5ad('../data/interim/BRI-2937_featureSelection.h5ad')
+adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_featureSelection.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2937_featureSelection.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_featureSelection.h5ad')
 # %%
 adata.X = adata.layers["log1p_norm"]
 # %%
@@ -230,9 +304,9 @@ sc.pl.umap(
     color=["total_counts", "pct_counts_mt", "scDblFinder_score", "scDblFinder_class"],
 )
 # %%
-adata.write_h5ad('../data/interim/BRI-2937_reduced.h5ad')
+adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_reduced.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2937_reduced.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_reduced.h5ad')
 # %%
 sc.pp.neighbors(adata, n_pcs=30)
 sc.tl.umap(adata)
