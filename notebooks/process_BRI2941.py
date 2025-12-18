@@ -8,7 +8,7 @@ from scipy.stats import median_abs_deviation
 import seaborn as sns
 # %%
 adatas = []
-perSampleDir = Path('../data/raw/cellRangerOuts/BRI-2939/per_sample_outs/')
+perSampleDir = Path('../data/raw/cellRangerOuts/BRI-2941/per_sample_outs/')
 for experimentDir in perSampleDir.iterdir():
     adataPath = experimentDir / 'count' / 'sample_filtered_feature_bc_matrix.h5'
     adataSample = sc.read_10x_h5(adataPath)
@@ -102,15 +102,14 @@ with (
 adata.obs["scDblFinder_score"] = outs["score"]
 adata.obs["scDblFinder_class"] = outs["class"]
 # %%
-adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_qc.h5ad')
+adata.write_h5ad('../data/interim/BRI-2941/BRI-2941_qc.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_qc.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2941/BRI-2941_qc.h5ad')
 # %%
 # Shifted logarithm normalization
 scales_counts = sc.pp.normalize_total(adata, target_sum=None, inplace=False)
 adata.layers["log1p_norm"] = sc.pp.log1p(scales_counts["X"], copy=True)
 # %%
-# The biomdal distribution after this is really quite strange
 fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
 axes[0].set_title("Total counts")
@@ -154,9 +153,9 @@ ax.set_xlim(None, 1.5)
 ax.set_ylim(None, 3)
 plt.show()
 # %%
-adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_featureSelection.h5ad')
+adata.write_h5ad('../data/interim/BRI-2941/BRI-2941_featureSelection.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_featureSelection.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2941/BRI-2941_featureSelection.h5ad')
 # %%
 adata.X = adata.layers["log1p_norm"]
 # %%
@@ -176,9 +175,9 @@ sc.pl.umap(
     color=["total_counts", "pct_counts_mt", "scDblFinder_score", "scDblFinder_class"],
 )
 # %%
-adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_reduced.h5ad')
+adata.write_h5ad('../data/interim/BRI-2941/BRI-2941_reduced.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_reduced.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2941/BRI-2941_reduced.h5ad')
 # %%
 sc.pp.neighbors(adata, n_pcs=30)
 sc.tl.umap(adata)

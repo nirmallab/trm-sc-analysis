@@ -56,6 +56,8 @@ print(f"Total number of cells: {adata.n_obs}")
 adata = adata[(~adata.obs.outlier) & (~adata.obs.mt_outlier)].copy()
 
 print(f"Number of cells after filtering of low quality cells: {adata.n_obs}")
+
+adata.layers["counts"] = adata.X
 # %% SoupX - Skipping for now
 # import logging
 # import anndata2ri
@@ -157,9 +159,9 @@ with (
 adata.obs["scDblFinder_score"] = outs["score"]
 adata.obs["scDblFinder_class"] = outs["class"]
 # %%
-adata.write_h5ad('../data/interim/BRI-2937_qc.h5ad')
+adata.write_h5ad('../data/interim/BRI-2937/BRI-2937_qc.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2937_qc.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2937/BRI-2937_qc.h5ad')
 # %%
 # Shifted logarithm normalization
 scales_counts = sc.pp.normalize_total(adata, target_sum=None, inplace=False)
@@ -208,9 +210,9 @@ ax.set_xlim(None, 1.5)
 ax.set_ylim(None, 3)
 plt.show()
 # %%
-adata.write_h5ad('../data/interim/BRI-2937_featureSelection.h5ad')
+adata.write_h5ad('../data/interim/BRI-2937/BRI-2937_featureSelection.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2937_featureSelection.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2937/BRI-2937_featureSelection.h5ad')
 # %%
 adata.X = adata.layers["log1p_norm"]
 # %%
@@ -230,9 +232,9 @@ sc.pl.umap(
     color=["total_counts", "pct_counts_mt", "scDblFinder_score", "scDblFinder_class"],
 )
 # %%
-adata.write_h5ad('../data/interim/BRI-2937_reduced.h5ad')
+adata.write_h5ad('../data/interim/BRI-2937/BRI-2937_reduced.h5ad')
 # %%
-adata = sc.read_h5ad('../data/interim/BRI-2937_reduced.h5ad')
+adata = sc.read_h5ad('../data/interim/BRI-2937/BRI-2937_reduced.h5ad')
 # %%
 sc.pp.neighbors(adata, n_pcs=30)
 sc.tl.umap(adata)
