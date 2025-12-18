@@ -23,6 +23,7 @@ pyyaml = ">=6.0.1"
 leidenalg = ">=0.10.2"
 anndata2ri = ">=1.3.1,<2.0"
 gseapy = ">=0.12.0"
+celltypist = "*"
 
 rpy2 = ">=3.5.11,<3.6"
 r-base = ">=4"
