@@ -33,11 +33,9 @@ p1 = sns.displot(adata.obs["total_counts"], bins=100, kde=False)
 p2 = sc.pl.violin(adata, "pct_counts_mt")
 p3 = sc.pl.scatter(adata, "total_counts", "n_genes_by_counts", color="pct_counts_mt")
 # %%
-# The data seemed a bit skewed so this just checks a smaller subset
-nct = 50000
-obs2 = adata.obs.copy()
-obs2 = obs2.loc[obs2['total_counts']<=nct]
-plt.hist(obs2['total_counts'], bins=200)
+# The data is heavily skewed, so I'm going to remove the really low count cells
+thresh = 2500
+adata = adata[adata.obs['total_counts']>thresh].copy()
 # %%
 def is_outlier(adata, metric: str, nmads: int):
     M = adata.obs[metric]
@@ -62,66 +60,6 @@ print(f"Total number of cells: {adata.n_obs}")
 adata = adata[(~adata.obs.outlier) & (~adata.obs.mt_outlier)].copy()
 
 print(f"Number of cells after filtering of low quality cells: {adata.n_obs}")
-# %% SoupX - Skipping for now
-# import logging
-# import anndata2ri
-# import rpy2.rinterface_lib.callbacks as rcb
-# import rpy2.robjects as ro
-
-# rcb.logger.setLevel(logging.ERROR)
-# ro.pandas2ri.activate()
-# anndata2ri.activate()
-# %load_ext rpy2.ipython
-# #%%
-# %%R
-# library(SoupX)
-# # %%
-# adata_pp = adata.copy()
-# sc.pp.normalize_per_cell(adata_pp)
-# sc.pp.log1p(adata_pp)
-# # %%
-# sc.pp.pca(adata_pp)
-# sc.pp.neighbors(adata_pp)
-# sc.tl.leiden(adata_pp, key_added="soupx_groups")
-
-# # Preprocess variables for SoupX
-# soupx_groups = adata_pp.obs["soupx_groups"]
-# # %%
-# del adata_pp
-# # %%
-# cells = adata.obs_names
-# genes = adata.var_names
-# data = adata.X.T
-# # %%
-# adata_raw = sc.read_10x_h5('/data/trm-sc-analysis/data/raw/cellRangerOuts/BRI-2939/count/raw_feature_bc_matrix.h5')
-# # %%
-# adata_raw.var_names_make_unique()
-# data_tod = adata_raw.X.T
-# # %%
-# del adata_raw
-# # %%
-# %%R -i data -i data_tod -i genes -i cells -i soupx_groups -o out 
-
-# # specify row and column names of data
-# rownames(data) = genes
-# colnames(data) = cells
-# # ensure correct sparse format for table of counts and table of droplets
-# data <- as(data, "sparseMatrix")
-# data_tod <- as(data_tod, "sparseMatrix")
-
-# # Generate SoupChannel Object for SoupX 
-# sc = SoupChannel(data_tod, data, calcSoupProfile = FALSE)
-
-# # Add extra meta data to the SoupChannel object
-# soupProf = data.frame(row.names = rownames(data), est = rowSums(data)/sum(data), counts = rowSums(data))
-# sc = setSoupProfile(sc, soupProf)
-# # Set cluster information in SoupChannel
-# sc = setClusters(sc, soupx_groups)
-
-# # Estimate contamination fraction
-# sc  = autoEstCont(sc, doPlot=FALSE)
-# # Infer corrected table of counts and rount to integer
-# out = adjustCounts(sc, roundToInt = TRUE)
 # %%
 import anndata2ri
 import rpy2.robjects as ro
@@ -171,74 +109,7 @@ adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_qc.h5ad')
 scales_counts = sc.pp.normalize_total(adata, target_sum=None, inplace=False)
 adata.layers["log1p_norm"] = sc.pp.log1p(scales_counts["X"], copy=True)
 # %%
-from scipy.sparse import csr_matrix, issparse
-# Analytic Pearson Residuals - Produces NaN
-# analytic_pearson = sc.experimental.pp.normalize_pearson_residuals(adata, inplace=False)
-# adata.layers["analytic_pearson_residuals"] = csr_matrix(analytic_pearson["X"])
-# fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-# p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
-# axes[0].set_title("Total counts")
-# p2 = sns.histplot(
-#     adata.layers["analytic_pearson_residuals"].sum(1), bins=100, kde=False, ax=axes[1]
-# )
-# axes[1].set_title("Analytic Pearson residuals")
-# plt.show()
-# %%
-adata_pp = adata.copy()
-sc.pp.normalize_total(adata_pp)
-sc.pp.log1p(adata_pp)
-sc.pp.pca(adata_pp, n_comps=15)
-sc.pp.neighbors(adata_pp)
-sc.tl.leiden(adata_pp, key_added="groups")
-# %%
-data_mat = adata_pp.X.T
-input_groups = adata_pp.obs["groups"]
-# convert to CSC if possible. See https://github.com/MarioniLab/scran/issues/70
-if issparse(data_mat):
-    if data_mat.nnz > 2**31 - 1:
-        data_mat = data_mat.tocoo()
-    else:
-        data_mat = data_mat.tocsc()
-# %%
-importr('scran')
-# %%
-scranNorm = ro.functions.wrap_r_function(
-    ro.r(
-        """
-function(data_mat, input_groups){
-size_factors = sizeFactors(
-    computeSumFactors(
-        SingleCellExperiment(
-            list(counts=data_mat)), 
-            clusters = input_groups,
-            min.mean = 0.1,
-            BPPARAM = MulticoreParam()
-    )
-)
-return(size_factors)
-}
-"""
-    ),
-    "scranNorm",
-)
-with (
-    ro.default_converter + ro.pandas2ri.converter + anndata2ri.converter
-).context():
-    size_factors = scranNorm(data_mat, input_groups)
-# %%
-adata.obs["size_factors"] = size_factors
-scran = adata.X.toarray() / adata.obs["size_factors"].values[:, None]
-adata.layers["scran_normalization"] = csr_matrix(sc.pp.log1p(scran))
-# %%
-fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
-axes[0].set_title("Total counts")
-p2 = sns.histplot(
-    adata.layers["scran_normalization"].sum(1), bins=100, kde=False, ax=axes[1]
-)
-axes[1].set_title("log1p with Scran estimated size factors")
-plt.show()
-# %%
+# The biomdal distribution after this is really quite strange
 fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 p1 = sns.histplot(adata.obs["total_counts"], bins=100, kde=False, ax=axes[0])
 axes[0].set_title("Total counts")
