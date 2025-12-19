@@ -58,66 +58,7 @@ adata = adata[(~adata.obs.outlier) & (~adata.obs.mt_outlier)].copy()
 print(f"Number of cells after filtering of low quality cells: {adata.n_obs}")
 
 adata.layers["counts"] = adata.X
-# %% SoupX - Skipping for now
-# import logging
-# import anndata2ri
-# import rpy2.rinterface_lib.callbacks as rcb
-# import rpy2.robjects as ro
 
-# rcb.logger.setLevel(logging.ERROR)
-# ro.pandas2ri.activate()
-# anndata2ri.activate()
-# %load_ext rpy2.ipython
-# #%%
-# %%R
-# library(SoupX)
-# # %%
-# adata_pp = adata.copy()
-# sc.pp.normalize_per_cell(adata_pp)
-# sc.pp.log1p(adata_pp)
-# # %%
-# sc.pp.pca(adata_pp)
-# sc.pp.neighbors(adata_pp)
-# sc.tl.leiden(adata_pp, key_added="soupx_groups")
-
-# # Preprocess variables for SoupX
-# soupx_groups = adata_pp.obs["soupx_groups"]
-# # %%
-# del adata_pp
-# # %%
-# cells = adata.obs_names
-# genes = adata.var_names
-# data = adata.X.T
-# # %%
-# adata_raw = sc.read_10x_h5('/data/trm-sc-analysis/data/raw/cellRangerOuts/BRI-2937/count/raw_feature_bc_matrix.h5')
-# # %%
-# adata_raw.var_names_make_unique()
-# data_tod = adata_raw.X.T
-# # %%
-# del adata_raw
-# # %%
-# %%R -i data -i data_tod -i genes -i cells -i soupx_groups -o out 
-
-# # specify row and column names of data
-# rownames(data) = genes
-# colnames(data) = cells
-# # ensure correct sparse format for table of counts and table of droplets
-# data <- as(data, "sparseMatrix")
-# data_tod <- as(data_tod, "sparseMatrix")
-
-# # Generate SoupChannel Object for SoupX 
-# sc = SoupChannel(data_tod, data, calcSoupProfile = FALSE)
-
-# # Add extra meta data to the SoupChannel object
-# soupProf = data.frame(row.names = rownames(data), est = rowSums(data)/sum(data), counts = rowSums(data))
-# sc = setSoupProfile(sc, soupProf)
-# # Set cluster information in SoupChannel
-# sc = setClusters(sc, soupx_groups)
-
-# # Estimate contamination fraction
-# sc  = autoEstCont(sc, doPlot=FALSE)
-# # Infer corrected table of counts and rount to integer
-# out = adjustCounts(sc, roundToInt = TRUE)
 # %%
 import anndata2ri
 import rpy2.robjects as ro
