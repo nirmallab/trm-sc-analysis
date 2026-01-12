@@ -246,3 +246,6 @@ overThresh = adata.obs['total_counts']>thresh
 adata.obs['overThresh'] = overThresh
 
 sc.pl.umap(adata, color=['Ccr3', 'overThresh', 'pct_counts_mt'])
+# %%
+adata.write_h5ad('../../data/processed/BRI-2941_nothreshAnnotated.h5ad')
+# %%

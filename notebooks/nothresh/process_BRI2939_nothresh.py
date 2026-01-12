@@ -240,3 +240,6 @@ markers = ['Ccr3', 'Il5ra', 'Siglecf']
 sc.pl.umap(adata, color=markers)
 # %%
 sc.pl.umap(adata, color='pct_counts_mt')
+# %%
+adata.write_h5ad('../../data/processed/BRI-2939_nothreshAnnotated.h5ad')
+# %%
