@@ -39,6 +39,7 @@ bioconductor-singlecellexperiment = ">=1.24.0"
 
 r-SoupX = "*"
 r-lme4 = "*" # for mast
+muon = ">=0.1.7,<0.2"
 
 [pypi-dependencies]
 ipykernel = "*"
