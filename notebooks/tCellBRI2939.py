@@ -15,7 +15,7 @@ for experimentDir in perSampleDir.iterdir():
     adataPath = experimentDir / 'vdj_t' / 'filtered_contig_annotations.csv'
     adatas.append(ir.io.read_10x_vdj(adataPath))
 adata_tcr = anndata.concat(adatas)
-adata = sc.read_h5ad('../data/processed/BRI-2939_nothreshAnnotated.h5ad')
+adata = sc.read_h5ad('../data/processed/BRI-2939.h5ad')
 # %%
 mdata = mu.MuData({"gex": adata, "airr": adata_tcr})
 mdata3k = ir.datasets.wu2020_3k()
@@ -45,6 +45,4 @@ _ = ir.pl.clonal_expansion(mdata, target_col="clone_id", groupby="gex:majority_v
 # %%
 sc.pl.umap(adata, color='majority_voting_low')
 mu.pl.embedding(mdata, basis="gex:umap", color=["Cd3e"])
-# %%
-mu.pl.embedding(mdata, basis="gex:umap", color=["Cd25"])
 # %%

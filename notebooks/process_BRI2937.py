@@ -193,5 +193,5 @@ sc.pl.umap(
     legend_loc="on data",
 )
 # %%
-adata.write_h5ad('../data/interim/BRI-2937/BRI-2937.h5ad')
+adata.write_h5ad('../data/processed/BRI-2937.h5ad')
 # %%
