@@ -33,9 +33,6 @@ p1 = sns.displot(adata.obs["total_counts"], bins=100, kde=False)
 p2 = sc.pl.violin(adata, "pct_counts_mt")
 p3 = sc.pl.scatter(adata, "total_counts", "n_genes_by_counts", color="pct_counts_mt")
 # %%
-# The data is heavily skewed, so I'm going to remove the really low count cells
-thresh = 2500
-adata = adata[adata.obs['total_counts']>thresh].copy()
 # %%
 def is_outlier(adata, metric: str, nmads: int):
     M = adata.obs[metric]
@@ -101,10 +98,9 @@ with (
 
 adata.obs["scDblFinder_score"] = outs["score"]
 adata.obs["scDblFinder_class"] = outs["class"]
-# %%
-adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_qc.h5ad')
-# %%
-adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_qc.h5ad')
+
+# Remove doublets based on downstream analysis
+adata = adata[adata.obs['scDblFinder_class'] == 'singlet']
 # %%
 # Shifted logarithm normalization
 scales_counts = sc.pp.normalize_total(adata, target_sum=None, inplace=False)
@@ -154,10 +150,6 @@ ax.set_xlim(None, 1.5)
 ax.set_ylim(None, 3)
 plt.show()
 # %%
-adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_featureSelection.h5ad')
-# %%
-adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_featureSelection.h5ad')
-# %%
 adata.X = adata.layers["log1p_norm"]
 # %%
 adata.var["highly_variable"] = adata.var["highly_deviant"]
@@ -176,10 +168,6 @@ sc.pl.umap(
     color=["total_counts", "pct_counts_mt", "scDblFinder_score", "scDblFinder_class"],
 )
 # %%
-adata.write_h5ad('../data/interim/BRI-2939/BRI-2939_reduced.h5ad')
-# %%
-adata = sc.read_h5ad('../data/interim/BRI-2939/BRI-2939_reduced.h5ad')
-# %%
 sc.pp.neighbors(adata, n_pcs=30)
 sc.tl.umap(adata)
 # %%
@@ -192,4 +180,69 @@ sc.pl.umap(
     color=["leiden_res0_25", "leiden_res0_5", "leiden_res1"],
     legend_loc="on data",
 )
+# %%
+# %%
+import celltypist
+from celltypist import models
+immuneHigh = models.Model.load(model="../models/Immune_All_High_Mouse.pkl")
+immuneLow = models.Model.load(model="../models/Immune_All_Low_Mouse.pkl")
+
+adata_celltypist = adata.copy()  
+adata_celltypist.X = adata.layers["log1p_norm"]  
+# normalize to 10,000 counts per cell (celltypist wants this)
+sc.pp.normalize_total(
+    adata_celltypist, target_sum=10**4
+)  
+sc.pp.log1p(adata_celltypist)
+predictions_high = celltypist.annotate(
+    adata_celltypist, model=immuneHigh, majority_voting=True
+)
+predictions_low = celltypist.annotate(
+    adata_celltypist, model=immuneLow, majority_voting=True
+)
+predictions_high_adata = predictions_high.to_adata().copy()
+predictions_low_adata = predictions_low.to_adata().copy()
+
+sc.pl.umap(
+    predictions_high_adata,
+    color=["majority_voting", "conf_score"],
+    frameon=False,
+    sort_order=False,
+    wspace=0.3,
+)
+sc.pl.umap(
+    predictions_low_adata,
+    color=["majority_voting", "conf_score"],
+    frameon=False,
+    sort_order=False,
+    wspace=0.3,
+)
+sc.pl.dendrogram(predictions_low_adata, groupby="majority_voting")
+sc.pl.dendrogram(predictions_high_adata, groupby="majority_voting")
+
+labelsLow = predictions_low_adata.obs[["majority_voting", "conf_score"]]
+labelsLow.columns = [f'{colName}_low' for colName in labelsLow.columns]
+
+labelsHigh = predictions_high_adata.obs[["majority_voting", "conf_score"]]
+labelsHigh.columns = [f'{colName}_high' for colName in labelsHigh.columns]
+
+adata.obs = adata.obs.join(labelsLow)
+adata.obs = adata.obs.join(labelsHigh)
+# %%
+geneNames = adata.var.index.str.upper()
+
+markers = ['CCR3', 'IL5R', 'CD66', 'SiglecF']
+
+for marker in markers:
+    marker = marker.upper()
+    isGene = geneNames.str.startswith(marker)
+    print(isGene.sum())
+    print(adata.var.index[isGene])
+
+markers = ['Ccr3', 'Il5ra', 'Siglecf']
+sc.pl.umap(adata, color=markers)
+# %%
+sc.pl.umap(adata, color='pct_counts_mt')
+# %%
+adata.write_h5ad('../data/processed/BRI-2939.h5ad')
 # %%

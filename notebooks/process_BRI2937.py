@@ -99,6 +99,9 @@ with (
 
 adata.obs["scDblFinder_score"] = outs["score"]
 adata.obs["scDblFinder_class"] = outs["class"]
+
+# Remove doublets based on downstream analysis
+adata = adata[adata.obs['scDblFinder_class'] == 'singlet']
 # %%
 adata.write_h5ad('../data/interim/BRI-2937/BRI-2937_qc.h5ad')
 # %%
@@ -189,4 +192,6 @@ sc.pl.umap(
     color=["leiden_res0_25", "leiden_res0_5", "leiden_res1"],
     legend_loc="on data",
 )
+# %%
+adata.write_h5ad('../data/interim/BRI-2937/BRI-2937.h5ad')
 # %%
