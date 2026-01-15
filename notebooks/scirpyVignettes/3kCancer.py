@@ -170,3 +170,7 @@ ct_different_v_df
 ir.tl.clonal_expansion(mdata)
 # %%
 mu.pl.embedding(mdata, basis="gex:umap", color=["airr:clonal_expansion", "airr:clone_id_size"], wspace=0.3)
+# %%
+_ = ir.pl.clonal_expansion(mdata, target_col="clone_id", groupby="gex:cluster", breakpoints=(1, 2, 5), normalize=False)
+# %%
+ir.pl.clonal_expansion(mdata, target_col="clone_id", groupby="gex:cluster")
