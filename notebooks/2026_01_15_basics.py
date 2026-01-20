@@ -120,9 +120,32 @@ genes = ['Ifng', 'Gzmb', 'Fasl']
 print(rankingDfCD8Pos.loc[genes])
 conditions = adata.obs['condition'].unique()
 for condition in conditions:
-    sc.pl.dotplot(adataTSub[adataTSub.obs['condition'] == condition], genes, groupby='cat', ax=ax)
+    sc.pl.dotplot(adataTSub[adataTSub.obs['condition'] == condition], genes, groupby='cat')
 # %%
-sc.pl.umap(adataT, color=['majority_voting_low', 'Cd101', 'Itgae'])
-sc.pl.umap(adataT, color=['Cd69', 'Cd8a', 'Itgae', 'Rgs1', 'Cd101'])
+sc.pl.umap(adataT, color=['majority_voting_low'])
 # %%
-sc.pl.umap(adataT, color=['Gzmk', 'Ccr5'])
+# TRM genes
+sc.pl.umap(adataT, color=['Cd69', 'Cd8a', 'Itgae', 'Rgs1', 'Cd101', 'Cd69', 'Havcr2', 'Pdcd1'])
+# %%
+# celltypist markers
+sc.pl.umap(adataT, color=['Gzmk', 'Cd8a', 'Ccl5'])
+# %%
+# TEM genes
+sc.pl.umap(adataT, color=['Cx3cr1', 'Ccr5', 'Gzma', 'Il7r','Il4', 'Il5', 'Ifng'])
+"""
+Sell: low
+Il4: Not right cells
+"""
+# %%
+# for res in np.arange(0.1, 1, 0.2):
+#     sc.tl.leiden(adataT, resolution=res ,key_added=f'leiden_{res}')
+#     sc.pl.umap(adataT, color=f'leiden_{res}')
+sc.tl.leiden(adataT, resolution=0.4, random_state=1234)
+sc.pl.umap(adataT, color='leiden')
+# %%
+sc.tl.dendrogram(adataT, groupby='leiden')
+sc.pl.dendrogram(adataT, groupby='leiden')
+
+print(adataT.obs['leiden'].value_counts())
+# %%
+sc.pl.umap(adataT, color='condition')
