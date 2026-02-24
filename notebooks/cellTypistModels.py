@@ -12,3 +12,4 @@ model.write('Immune_All_Low_Mouse.pkl')
 model = celltypist.Model.load('Immune_All_High.pkl')
 model.convert()
 model.write('Immune_All_High_Mouse.pkl')
+# %
