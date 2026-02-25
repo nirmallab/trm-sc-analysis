@@ -67,8 +67,10 @@ adata_seurat
 import anndata2ri
 import rpy2.robjects as ro
 from rpy2.robjects.packages import importr
+import time
 
 importr('Seurat')
+t0 = time.time()
 integrateSeurat = ro.functions.wrap_r_function(
     ro.r(
         """
@@ -94,5 +96,5 @@ with (
     ro.default_converter + ro.pandas2ri.converter + anndata2ri.converter
 ).context():
     outs = integrateSeurat(adata_seurat, batch_key)
-
+print(time.time()-t0)
 # seurat <- as.Seurat(adata_seurat, counts = "counts", data = "logcounts")
