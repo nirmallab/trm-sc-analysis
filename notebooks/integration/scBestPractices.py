@@ -68,24 +68,16 @@ import anndata2ri
 import rpy2.robjects as ro
 from rpy2.robjects.packages import importr
 import time
-
+# %%
 importr('Seurat')
+importr('future')
 t0 = time.time()
 integrateSeurat = ro.functions.wrap_r_function(
     ro.r(
         """
-        function(adata_seurat, batch_key){
-        seurat <- as.Seurat(adata_seurat, counts = "counts", data = "logcounts")
-        batch_list <- SplitObject(seurat, split.by = batch_key)
-        anchors <- FindIntegrationAnchors(batch_list, anchor.features = rownames(seurat))
-        integrated <- IntegrateData(anchors)
-        # Extract the integrated expression matrix
-        integrated_expr <- GetAssayData(integrated)
-        # Make sure the rows and columns are in the same order as the original object
-        integrated_expr <- integrated_expr[rownames(seurat), colnames(seurat)]
-        # Transpose the matrix to AnnData format
-        integrated_expr <- t(integrated_expr)
-        print(integrated_expr[1:10, 1:10])
+        function(){
+        expr = readRDS('./saveRDSIntegrated_expr.rds')
+        return(expr)
         }
         """
     ),
@@ -95,6 +87,22 @@ integrateSeurat = ro.functions.wrap_r_function(
 with (
     ro.default_converter + ro.pandas2ri.converter + anndata2ri.converter
 ).context():
-    outs = integrateSeurat(adata_seurat, batch_key)
+    integrated_expr = integrateSeurat()
 print(time.time()-t0)
 # seurat <- as.Seurat(adata_seurat, counts = "counts", data = "logcounts")
+# %%
+adata_seurat.X = integrated_expr
+adata_seurat.layers["seurat"] = integrated_expr
+print(adata_seurat)
+# %%
+# Reset the batch colours because we deleted them earlier
+adata_seurat.uns[batch_key + "_colors"] = [
+    "#1b9e77",
+    "#d95f02",
+    "#7570b3",
+]
+sc.tl.pca(adata_seurat)
+sc.pp.neighbors(adata_seurat)
+sc.tl.umap(adata_seurat)
+sc.pl.umap(adata_seurat, color=[label_key, batch_key], wspace=1)
+# %%
