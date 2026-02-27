@@ -17,8 +17,10 @@ for scPath in scDir.iterdir():
         continue
     if prefix in usedPrefix:
         continue
-    print(prefix)
-    adatas.append(sc.read_10x_mtx(path=scDir, prefix=prefix))
+    print(prefix.split('_')[1].strip('_'))
+    adata = sc.read_10x_mtx(path=scDir, prefix=prefix)
+    adata.obs['batch'] = prefix.split('_')[1].strip('_')
+    adatas.append(adata)
     usedPrefix.add(prefix)
     c += 1
 adata = anndata.concat(adatas)
@@ -163,6 +165,8 @@ sc.pl.pca_scatter(adata, color="total_counts")
 # %%
 sc.pp.neighbors(adata)
 sc.tl.umap(adata)
+
+adata.write_h5ad('../../data/external/stubenvoll_processed.h5ad')
 # %%
 sc.pl.umap(adata, color="total_counts")
 # %%
@@ -175,3 +179,31 @@ sc.pl.umap(
     adata,
     color=["scDblFinder_class"],
 )
+# %%
+batch_key = 'batch'
+sc.pp.highly_variable_genes(
+    adata, n_top_genes=2000, flavor="cell_ranger", batch_key=batch_key
+)
+adata_hvg = adata[:, adata.var["highly_variable"]].copy()
+adata_seurat = adata_hvg.copy()
+# Convert categorical columns to strings
+adata_seurat.obs[batch_key] = adata_seurat.obs[batch_key].astype(str)
+# %%
+# importr('Seurat')
+# importr('future')
+# integrateSeurat = ro.functions.wrap_r_function(
+#     ro.r(
+#         """
+#         function(){
+#         expr = readRDS('./saveRDSIntegrated_expr.rds')
+#         return(expr)
+#         }
+#         """
+#     ),
+#     "integrateSeurat",
+# )
+
+# with (
+#     ro.default_converter + ro.pandas2ri.converter + anndata2ri.converter
+# ).context():
+#     integrated_expr = integrateSeurat()
