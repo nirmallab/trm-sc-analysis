@@ -250,8 +250,8 @@ adata = adata_seurat
 # %%
 import celltypist
 from celltypist import models
-immuneHigh = models.Model.load(model="../../models/Immune_All_High_Mouse.pkl")
-immuneLow = models.Model.load(model="../../models/Immune_All_Low_Mouse.pkl")
+immuneHigh = models.Model.load(model = 'Immune_All_High.pkl')
+immuneLow = models.Model.load(model = 'Immune_All_Low.pkl')
 
 adata_celltypist = adata.copy()  
 adata_celltypist.X = adata.layers["log1p_norm"]  
@@ -283,4 +283,6 @@ sc.pl.umap(
     sort_order=False,
     wspace=0.3,
 )
+
+adata.write_h5ad('/home/tyj566/mnt/h/lsp-analysis/tyler/jasonSingleCell/processed/stubenvoll_celltyped.h5ad')
 # %%
