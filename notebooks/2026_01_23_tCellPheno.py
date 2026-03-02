@@ -77,7 +77,7 @@ sc.tl.pca(adataCd8)
 sc.pp.neighbors(adataCd8)
 sc.tl.umap(adataCd8)
 # %%
-sc.tl.leiden(adataCd8, resolution=.25)
+sc.tl.leiden(adataCd8, resolution=.5)
 sc.pl.umap(adataCd8, color='leiden',add_outline=False,legend_loc="on data", legend_fontoutline=4)
 sc.pl.umap(adataCd8, color=['Pdcd1', 'Itgae', 'majority_voting_low', 'leiden'], wspace=0.5)
 # %%
