@@ -263,6 +263,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/libzlib-1.3.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/llvmlite-0.46.0-py312h7424e68_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/logomaker-0.8.6-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/loompy-3.0.8-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/make-4.4.1-hb9d3cd8_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-4.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/markupsafe-3.0.3-py312h8a5da7c_0.conda
@@ -290,6 +291,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/numba-0.63.1-py312hd1dde6f_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/numcodecs-0.16.5-py312hf79963d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/numpy-2.3.5-py312h33ff503_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/numpy_groupies-0.11.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/oniguruma-6.9.10-hb9d3cd8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openjpeg-2.5.4-h55fea9a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openldap-2.6.10-he970967_0.conda
@@ -547,6 +549,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.8.0-np2py312h3226591_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scipy-1.16.3-py312h54fa4ab_2.conda
       - conda: https://conda.anaconda.org/bioconda/noarch/scirpy-0.22.4-pyhdfd78af_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/scvelo-0.3.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-0.13.2-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-base-0.13.2-pyhd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/secretstorage-3.4.1-py312h7900ff3_0.conda
@@ -876,6 +879,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/llvm-tools-20.1.8-hc040464_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/llvmlite-0.46.0-py312h331d821_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/logomaker-0.8.6-pyhd8ed1ab_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/loompy-3.0.8-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/make-4.4.1-h00291cd_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/markdown-it-py-4.0.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/markupsafe-3.0.3-py312hacf3034_0.conda
@@ -905,6 +909,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/numba-0.63.1-py312hc2d28fe_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/numcodecs-0.16.5-py312h86abcb1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/numpy-2.3.5-py312hb34da66_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/numpy_groupies-0.11.3-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/oniguruma-6.9.10-h6e16a3a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/openjpeg-2.5.4-h87e8dc5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/openpyxl-3.1.5-py312hc14bf67_2.conda
@@ -1161,6 +1166,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/scikit-learn-1.8.0-np2py312h47bbdc5_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/scipy-1.16.3-py312h79cf0a0_2.conda
       - conda: https://conda.anaconda.org/bioconda/noarch/scirpy-0.22.4-pyhdfd78af_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/scvelo-0.3.4-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sdkroot_env_osx-64-26.0-hda3c137_5.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-0.13.2-hd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/seaborn-base-0.13.2-pyhd8ed1ab_3.conda
@@ -6924,6 +6930,23 @@ packages:
   - pkg:pypi/logomaker?source=hash-mapping
   size: 13004202
   timestamp: 1738576505433
+- conda: https://conda.anaconda.org/conda-forge/noarch/loompy-3.0.8-pyhd8ed1ab_0.conda
+  sha256: f031b6e5f257db832deddf2819137dfa09d57887ec6c055cb3aba6a00ef4416b
+  md5: addfdffe9bbcf49336f173c276de6159
+  depends:
+  - click
+  - h5py
+  - numba
+  - numpy
+  - numpy_groupies
+  - python >=3.10
+  - scipy
+  license: BSD-2-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/loompy?source=hash-mapping
+  size: 49409
+  timestamp: 1756390935885
 - conda: https://conda.anaconda.org/conda-forge/linux-64/make-4.4.1-hb9d3cd8_2.conda
   sha256: d652c7bd4d3b6f82b0f6d063b0d8df6f54cc47531092d7ff008e780f3261bdda
   md5: 33405d2a66b1411db9f7242c8b97c9e7
@@ -7548,6 +7571,18 @@ packages:
   - pkg:pypi/numpy?source=hash-mapping
   size: 7992898
   timestamp: 1766383296569
+- conda: https://conda.anaconda.org/conda-forge/noarch/numpy_groupies-0.11.3-pyhd8ed1ab_0.conda
+  sha256: 94c148b8d4687c839a37c4a68b1674fa548b065e833b9b4701865d548995239f
+  md5: 5402c2b046432ceb2d192a82802e7854
+  depends:
+  - numpy
+  - python >=3.9
+  license: BSD-2-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/numpy-groupies?source=hash-mapping
+  size: 38384
+  timestamp: 1747937493897
 - conda: https://conda.anaconda.org/conda-forge/linux-64/oniguruma-6.9.10-hb9d3cd8_0.conda
   sha256: bbff8a60f70d5ebab138b564554f28258472e1e63178614562d4feee29d10da2
   md5: 6ce853cb231f18576d2db5c2d4cb473e
@@ -13533,6 +13568,27 @@ packages:
   - pkg:pypi/scirpy?source=hash-mapping
   size: 3749827
   timestamp: 1765570894132
+- conda: https://conda.anaconda.org/conda-forge/noarch/scvelo-0.3.4-pyhd8ed1ab_0.conda
+  sha256: 626917ad9b707c2b7eb3b6f661a2e6a601888dd8191e44eaed61f42a8130b443
+  md5: 7eb3897b9d625a2b79fd0a2f452082dd
+  depends:
+  - anndata >=0.7.5
+  - loompy >=2.0.12
+  - matplotlib-base >=3.3.0
+  - numba >=0.41.0
+  - numpy >=1.17
+  - pandas >=1.1.1,!=1.4.0
+  - python >=3.8
+  - scanpy >=1.5
+  - scikit-learn >=0.21.2
+  - scipy >=1.4.1
+  - umap-learn >=0.3.10
+  license: BSD-3-Clause
+  license_family: BSD
+  purls:
+  - pkg:pypi/scvelo?source=hash-mapping
+  size: 140824
+  timestamp: 1772022926610
 - conda: https://conda.anaconda.org/conda-forge/noarch/sdkroot_env_osx-64-26.0-hda3c137_5.conda
   sha256: a8f7b6bec6772b9100713cc6e0f8d3d22b601e3a722be13ccf2465c2cab6cb3c
   md5: 9ba4c4f68b9817b7c81954cdc425a50d
