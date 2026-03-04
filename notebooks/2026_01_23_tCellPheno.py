@@ -107,3 +107,4 @@ ir.tl.clonal_expansion(mdata)
 # %%
 ax = ir.pl.group_abundance(mdata, groupby="airr:chain_pairing", target_col="gex:leiden")
 # %%
+mu.pl.embedding(mdata, basis="gex:umap", color=["airr:clonal_expansion", "airr:clone_id_size"])
