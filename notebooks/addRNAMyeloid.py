@@ -9,6 +9,11 @@ import scirpy as ir
 import scvelo as scv
 from tqdm import tqdm
 # %%
+def geneSearch(gene):
+    genes = adata.var.index
+    isGene = genes.str.startswith(gene)
+    print(genes[isGene])
+# %%
 adata37 = sc.read_h5ad('../data/processed/BRI-2937.h5ad')
 adata39 = sc.read_h5ad('../data/processed/BRI-2939.h5ad')
 adata41 = sc.read_h5ad('../data/processed/BRI-2941.h5ad')
@@ -56,6 +61,28 @@ scv.tl.velocity(adata, mode='stochastic')
 scv.tl.velocity_graph(adata)
 # %%
 adataSub = adata[~adata.obs['myeloid_anno'].isna()]
+sc.pp.normalize_per_cell(adataSub)
+sc.pp.log1p(adataSub)
+# sc.pp.highly_variable_genes(adataCd8, flavor="cell_ranger", n_top_genes=5000)
+sc.tl.pca(adataSub)
+sc.pp.neighbors(adataSub)
+sc.tl.umap(adataSub)
+# %%
+sc.pl.umap(adataSub, color='myeloid_anno')
+# %%
+scv.tl.velocity_graph(adataSub)
+# %%
+scv.pl.velocity_embedding(
+    adataSub,
+    basis='umap',
+    arrow_length=3,
+    arrow_size=2,
+    color='myeloid_anno'
+)
+# %%
+isPheno = ~adata.obs['myeloid_anno'].isin(['cDC1', 'pDCs', 'fibrobalst'])
+adataSub = adata[~adata.obs['myeloid_anno'].isna() & isPheno]
+# %%
 sc.pp.normalize_per_cell(adataSub)
 sc.pp.log1p(adataSub)
 # sc.pp.highly_variable_genes(adataCd8, flavor="cell_ranger", n_top_genes=5000)
